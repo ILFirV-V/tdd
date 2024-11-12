@@ -1,6 +1,8 @@
 ﻿using System.Drawing;
+using System.Drawing.Imaging;
 using FluentAssertions;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 using TagsCloudVisualization.Extensions;
 
 namespace TagsCloudVisualization.Tests;
@@ -8,6 +10,8 @@ namespace TagsCloudVisualization.Tests;
 [TestFixture]
 public class CircularCloudLayouterTests
 {
+    private ICircularCloudLayouter circularCloudLayouter;
+
     private static IEnumerable<TestCaseData> withZeroSizeTestCases
         = CircularCloudLayouterTestCases.GetRectanglesWithZeroSizesTestData;
 
@@ -20,11 +24,23 @@ public class CircularCloudLayouterTests
     private static IEnumerable<TestCaseData> checkUnusualRectangleSizeTestCases
         = CircularCloudLayouterTestCases.GetCorrectUnusualRectanglesSizeTestData;
 
+    [TearDown]
+    public void TearDown()
+    {
+        if (TestContext.CurrentContext.Result.Outcome.Status != TestStatus.Failed)
+            return;
+        var rectangles = circularCloudLayouter.GetRectangles();
+        var imageSize = new Size(1000, 1000);
+        using var tagsCloudVisualizer = new TagsCloudVisualizer(imageSize);
+        tagsCloudVisualizer.AddVisualizationRectangles(rectangles);
+        SaveErrorVisualization(tagsCloudVisualizer, TestContext.CurrentContext);
+    }
+
     [Test]
     [TestCaseSource(nameof(withZeroSizeTestCases))]
     public void PutNextRectangle_ShouldThrowArgumentException_WhenSizeIsZero(Point center, Size rectangleSize)
     {
-        var circularCloudLayouter = new CircularCloudLayouter(center);
+        circularCloudLayouter = new CircularCloudLayouter(center);
 
         var action = () => circularCloudLayouter.PutNextRectangle(rectangleSize);
 
@@ -43,7 +59,7 @@ public class CircularCloudLayouterTests
             throw new ArgumentNullException(nameof(sizes));
         }
 
-        var circularCloudLayouter = new CircularCloudLayouter(center);
+        circularCloudLayouter = new CircularCloudLayouter(center);
 
         var rectangles = sizes.Select(size => circularCloudLayouter.PutNextRectangle(size)).ToList();
         var rectangle = rectangles.Last();
@@ -62,7 +78,7 @@ public class CircularCloudLayouterTests
             throw new ArgumentNullException(nameof(sizes));
         }
 
-        var circularCloudLayouter = new CircularCloudLayouter(center);
+        circularCloudLayouter = new CircularCloudLayouter(center);
         var firstRectangleSize = sizes.First();
 
         var firstRectangle = circularCloudLayouter.PutNextRectangle(firstRectangleSize);
@@ -78,7 +94,7 @@ public class CircularCloudLayouterTests
     public void PutNextRectangle_ShouldRectanglesNotInCenter_WhenPutNextRectangles(Point center, IList<Size> sizes)
     {
         var rectangles = new List<Rectangle>();
-        var circularCloudLayouter = new CircularCloudLayouter(center);
+        circularCloudLayouter = new CircularCloudLayouter(center);
 
         if (sizes.Any())
         {
@@ -96,7 +112,7 @@ public class CircularCloudLayouterTests
     [TestCaseSource(nameof(checkUnusualRectangleSizeTestCases))]
     public void PutNextRectangle_ShouldEquivalentSize_WhenPutNextRectangles(Point center, IList<Size> sizes)
     {
-        var circularCloudLayouter = new CircularCloudLayouter(center);
+        circularCloudLayouter = new CircularCloudLayouter(center);
         var rectangles = sizes.Select(size => circularCloudLayouter.PutNextRectangle(size)).ToList();
 
         rectangles.Select(r => r.Size).Should()
@@ -108,7 +124,7 @@ public class CircularCloudLayouterTests
     [TestCaseSource(nameof(checkUnusualRectangleSizeTestCases))]
     public void PutNextRectangle_NotShouldIntersect_WhenPutNextRectangles(Point center, IList<Size> sizes)
     {
-        var circularCloudLayouter = new CircularCloudLayouter(center);
+        circularCloudLayouter = new CircularCloudLayouter(center);
         var rectangles = sizes.Select(size => circularCloudLayouter.PutNextRectangle(size)).ToList();
         var intersectingRectangles = new List<Rectangle>();
 
@@ -119,5 +135,24 @@ public class CircularCloudLayouterTests
         }
 
         intersectingRectangles.Should().BeEmpty();
+    }
+
+    private void SaveErrorVisualization(ITagsCloudVisualizer tagsCloudVisualizer, TestContext testContext)
+    {
+        var imageFormat = ImageFormat.Png;
+        var imagePath = GetTestErrorImagesPath(testContext, imageFormat);
+        tagsCloudVisualizer.Save(imagePath, imageFormat);
+        TestContext.WriteLine($"Tag cloud visualization saved to file {imagePath}");
+    }
+
+    private string GetTestErrorImagesPath(TestContext testContext, ImageFormat imageFormat)
+    {
+        const string imagesFolderName = "ImagesWhenErrorInTests";
+        var path = testContext.TestDirectory;
+        var imagesDirectoryPath = Path.Combine(path, imagesFolderName);
+        var testName = testContext.Test.Name;
+        Directory.CreateDirectory(imagesDirectoryPath);
+        var fileName = Path.ChangeExtension(testName, imageFormat.ToString().ToLowerInvariant());
+        return Path.Combine(imagesDirectoryPath, fileName);
     }
 }

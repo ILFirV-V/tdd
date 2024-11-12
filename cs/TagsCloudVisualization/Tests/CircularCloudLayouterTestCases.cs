@@ -23,13 +23,13 @@ internal static class CircularCloudLayouterTestCases
 
     internal static readonly IEnumerable<TestCaseData> GetCorrectUnusualRectanglesSizeTestData =
     [
-        new TestCaseData(new Point(10, 10), Array.Empty<Size>())
+        new TestCaseData(new Point(100, 100), Array.Empty<Size>())
             .SetName("ArraySizeEmpty"),
     ];
 
     internal static readonly IEnumerable<TestCaseData> GetCorrectRectangleSizesTestData =
     [
-        new TestCaseData(new Point(10, 10), new List<Size>() {new(1, 1)})
+        new TestCaseData(new Point(100, 100), new List<Size>() {new(10, 10)})
             .SetName("OneSize"),
         new TestCaseData(new Point(100, 100), new List<Size>()
                 {new(10, 10), new(20, 20), new(15, 15), new(5, 7), new(3, 1), new(15, 35)})
