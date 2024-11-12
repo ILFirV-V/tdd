@@ -33,6 +33,11 @@ public class CircularCloudLayouter : ICircularCloudLayouter
         return rectangle;
     }
 
+    public IReadOnlyCollection<Rectangle> GetRectangles()
+    {
+        return rectangles.AsReadOnly();
+    }
+
     private Rectangle CreateNewRectangle(Size rectangleSize)
     {
         var rectangleLocation = GetRectangleLocation(rectangleSize);
