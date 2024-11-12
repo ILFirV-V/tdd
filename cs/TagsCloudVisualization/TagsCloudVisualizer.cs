@@ -4,7 +4,7 @@ using TagsCloudVisualization.Extensions;
 
 namespace TagsCloudVisualization;
 
-public class TagsCloudVisualizer : ITagsCloudVisualizer, IDisposable
+public class TagsCloudVisualizer : ITagsCloudVisualizer
 {
     private bool isDisposed;
     private readonly Bitmap bitmap;
@@ -15,7 +15,7 @@ public class TagsCloudVisualizer : ITagsCloudVisualizer, IDisposable
         isDisposed = false;
     }
 
-    public void VisualizeLayoutRectangles(IList<Rectangle> rectangles)
+    public void AddVisualizationRectangles(IEnumerable<Rectangle> rectangles)
     {
         using var graphics = Graphics.FromImage(bitmap);
         VisualizeRectangles(graphics, rectangles);
