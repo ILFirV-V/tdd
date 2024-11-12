@@ -31,8 +31,8 @@ internal static class CircularCloudLayouterTestCases
     [
         new TestCaseData(new Point(10, 10), new List<Size>() {new(1, 1)})
             .SetName("OneSize"),
-        new TestCaseData(new Point(100, 100), new List<Size>() 
-            {new(10, 10), new(20, 20), new(15, 15), new(5, 7), new(3, 1), new(15, 35)})
+        new TestCaseData(new Point(100, 100), new List<Size>()
+                {new(10, 10), new(20, 20), new(15, 15), new(5, 7), new(3, 1), new(15, 35)})
             .SetName("MoreSizes"),
     ];
 }

@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using FluentAssertions;
 using NUnit.Framework;
+using TagsCloudVisualization.Extensions;
 
 namespace TagsCloudVisualization.Tests;
 
@@ -63,20 +64,18 @@ public class CircularCloudLayouterTests
 
         var circularCloudLayouter = new CircularCloudLayouter(center);
         var firstRectangleSize = sizes.First();
-        var firstRectangle = circularCloudLayouter.PutNextRectangle(firstRectangleSize);
-        var shiftFromCenter = -1 * firstRectangleSize / 2;
-        var shouldRectangleLocation = center + shiftFromCenter;
 
+        var firstRectangle = circularCloudLayouter.PutNextRectangle(firstRectangleSize);
         var _ = sizes.Skip(1).Select(size => circularCloudLayouter.PutNextRectangle(size));
 
-        firstRectangle.Location.Should()
-            .BeEquivalentTo(shouldRectangleLocation);
+        firstRectangle.Center().Should()
+            .BeEquivalentTo(center);
     }
 
     [Test]
     [TestCaseSource(nameof(checkRectangleSizeTestCases))]
     [TestCaseSource(nameof(checkUnusualRectangleSizeTestCases))]
-    public void PutNextRectangle_ShouldNotInCenter_WhenPutNextRectangles(Point center, IList<Size> sizes)
+    public void PutNextRectangle_ShouldRectanglesNotInCenter_WhenPutNextRectangles(Point center, IList<Size> sizes)
     {
         var rectangles = new List<Rectangle>();
         var circularCloudLayouter = new CircularCloudLayouter(center);

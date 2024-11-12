@@ -122,7 +122,9 @@ public class CircularCloudLayouter : ICircularCloudLayouter
 
         var x = center.X + layer * distanceLayersDifference * Math.Cos(angle);
         var y = center.Y + layer * distanceLayersDifference * Math.Sin(angle);
-        var newLocation = new Point((int) x, (int) y);
+        var wholeX = Convert.ToInt32(x);
+        var wholeY = Convert.ToInt32(y);
+        var newLocation = new Point(wholeX, wholeY);
         return newLocation;
     }
 
